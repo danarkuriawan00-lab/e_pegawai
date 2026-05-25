@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem E-Kepegawaian - Login</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- LOGIN SCREEN CONTAINER (Ditampilkan secara default jika belum login) -->
+    <div id="login-screen" class="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 p-4 overflow-y-auto">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.15),transparent_45%)]"></div>
+        
+        <div class="bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 max-w-md w-full overflow-hidden transition-all duration-300 transform scale-100 relative z-10">
+            <!-- Header Login -->
+            <div class="bg-indigo-900 text-white p-8 text-center relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-10 text-white">
+                    <i data-lucide="shield" class="w-32 h-32"></i>
+                </div>
+                <div class="mx-auto w-16 h-16 bg-white text-indigo-900 p-3 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+                    <i data-lucide="lock" class="w-8 h-8"></i>
+                </div>
+                <h2 class="font-extrabold text-2xl tracking-wide">E-KEPEGAWAIAN</h2>
+                <p class="text-xs text-indigo-200 mt-1">Sistem Keamanan & Pengarsipan Berkas Digital</p>
+            </div>
+
+            <!-- Form Login -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="p-8 space-y-6">
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Username / NIP</label>
+                        <div class="relative">
+                            <input type="text" id="login-username" required placeholder="Masukkan username" class="w-full text-sm pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            <i data-lucide="user" class="w-5 h-5 text-slate-400 absolute left-3 top-3"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Kata Sandi</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" required placeholder="Masukkan kata sandi" class="w-full text-sm pl-10 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                            <i data-lucide="key-round" class="w-5 h-5 text-slate-400 absolute left-3 top-3"></i>
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-indigo-600 focus:outline-none">
+                                <i id="toggle-password-icon" data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="remember-me" class="rounded text-indigo-600 focus:ring-indigo-500">
+                        <span class="text-slate-500 select-none">Ingat Sesi Saya</span>
+                    </label>
+                    <a href="#" onclick="showForgotPasswordAlert()" class="text-indigo-600 hover:underline font-medium">Lupa sandi?</a>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/30 transition duration-150 flex items-center justify-center gap-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Sistem
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MAIN APPLICATION CONTAINER (Disembunyikan sebelum login) -->
+    <div id="app-container" class="hidden flex-col min-h-screen">
+        <!-- HEADER / NAVIGATION -->
+        <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-white text-indigo-900 p-2 rounded-lg">
+                            <i data-lucide="users" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h1 class="font-bold text-lg tracking-wide">E-KEPEGAWAIAN</h1>
+                            <p class="text-xs text-indigo-200">Sistem Informasi & Arsip Digital Kepegawaian</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <!-- Status Database Cloud Sync -->
+                        <div id="db-sync-status" class="hidden text-xs bg-indigo-800 px-3 py-1.5 rounded-full border border-indigo-700 flex items-center gap-1.5">
+                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span id="sync-text">Cloud Terhubung</span>
+                        </div>
+                        <span class="text-sm bg-indigo-955 px-3 py-1.5 rounded-full border border-indigo-800 flex items-center gap-1.5">
+                            Admin Kepegawaian
+                        </span>
+                        <!-- Logout Button -->
+                        <button onclick="handleLogout()" class="text-xs bg-red-600/20 text-red-300 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-full border border-red-500/30 flex items-center gap-1.5 transition">
+                            <i data-lucide="log-out" class="w-4 h-4"></i> Keluar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            
+            <!-- TOP STATS CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Total Pegawai</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-total-pegawai">0</h3>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <i data-lucide="users" class="w-6 h-6"></i>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Pegawai PNS</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-pns">0</h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <i data-lucide="award" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Pegawai PPPK</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-pppk">0</h3>
+                    </div>
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                        <i data-lucide="briefcase" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">Total Berkas Ter-upload</p>
+                        <h3 class="text-3xl font-bold text-slate-800 mt-1" id="stat-files">0</h3>
+                    </div>
+                    <div class="p-3 bg-sky-50 text-sky-600 rounded-xl">
+                        <i data-lucide="file-check" class="w-6 h-6"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UTILITIES / BACKUP & SYNC CARD -->
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-2xl p-6 shadow-sm mb-8 flex flex-col md:flex-row items-center justify-between gap-6 border border-slate-700">
+                <div class="flex items-center gap-4">
+                    <div class="p-3.5 bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+                        <i data-lucide="database-backup" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base">Arsip & Cadangan Google Drive</h3>
+                        <p class="text-xs text-slate-400 mt-1">Simpan atau pulihkan seluruh database pegawai beserta status unggahan berkas ke Google Drive Anda dalam format JSON.</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Backup To G-Drive -->
+                    <button onclick="eksporDatabaseJSON()" class="flex-1 md:flex-initial text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition shadow-sm">
+                        <i data-lucide="download-cloud" class="w-4 h-4"></i>
+                        Unduh File Database (Simpan ke G-Drive)
+                    </button>
+                    <!-- Restore From G-Drive -->
+                    <label class="flex-1 md:flex-initial cursor-pointer text-xs bg-slate-700 hover:bg-slate-600 border border-slate-600 text-slate-200 font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition text-center">
+                        <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+                        Impor Database (Ambil dari G-Drive)
+                        <input type="file" id="import-db-input" class="hidden" accept=".json" onchange="imporDatabaseJSON(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- STORAGE SAVING ALERT NOTICE -->
+            <div class="bg-amber-50 border-l-4 border-amber-500 text-amber-900 p-4 rounded-r-2xl shadow-sm mb-8 flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+                <div class="text-xs">
+                    <span class="font-bold">Tips Hemat Penyimpanan (Firestore Safe):</span> Kami sangat menyarankan menggunakan opsi <strong>"Tautkan Link G-Drive"</strong> untuk melampirkan berkas dokumen. Metode tautan link ini tidak menggunakan ruang penyimpanan cloud database (hanya memakan beberapa byte), sehingga aman dari batas penyimpanan maksimal database dan menghindari kegagalan sinkronisasi berkas berukuran besar.
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- LEFT PANEL: DAFTAR PEGAWAI -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                                <i data-lucide="folder-open" class="text-indigo-600 w-5 h-5"></i>
+                                Daftar Pegawai
+                            </h2>
+                            <button onclick="openAddModal()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-1.5 px-3 rounded-lg flex items-center gap-1 transition">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Tambah
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter -->
+                        <div class="space-y-3 mb-4">
+                            <div class="relative">
+                                <input type="text" id="search-input" onkeyup="filterPegawai()" placeholder="Cari Nama / NIP..." class="w-full text-sm pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+                            </div>
+                            <div class="flex gap-2">
+                                <select id="filter-status" onchange="filterPegawai()" class="w-full text-xs bg-slate-50 border border-slate-200 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="ALL">Semua Status</option>
+                                    <option value="PNS">PNS</option>
+                                    <option value="PPPK">PPPK</option>
+                                    <option value="CPNS">CPNS</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- List Container -->
+                        <div class="overflow-y-auto max-h-[500px] space-y-2 pr-1" id="pegawai-list">
+                            <!-- Rendered by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANEL: DETAIL PEGAWAI & MENU UPLOAD -->
+                <div class="lg:col-span-8 space-y-6">
+                    
+                    <!-- DEFAULT NO SELECTION STATE -->
+                    <div id="no-selection-state" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 flex flex-col items-center justify-center text-center h-[650px]">
+                        <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600 mb-4 animate-bounce">
+                            <i data-lucide="user-check" class="w-10 h-10"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800">Pilih Pegawai Terlebih Dahulu</h3>
+                        <p class="text-sm text-slate-500 mt-2 max-w-sm">Pilih salah satu pegawai di panel sebelah kiri untuk mengelola data pribadi dan 33 dokumen wajib kepegawaian.</p>
+                    </div>
+
+                    <!-- MAIN WORKSPACE -->
+                    <div id="workspace-state" class="hidden space-y-6">
+                        
+                        <!-- PEGAWAI HEADER CARD -->
+                        <div class="bg-gradient-to-r from-indigo-800 to-indigo-950 text-white rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                            <div class="absolute -right-10 -bottom-10 opacity-10 text-white">
+                                <i data-lucide="award" class="w-48 h-48"></i>
+                            </div>
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                                <div class="flex items-center gap-4">
+                                    <!-- Interactive Profile Photo Circle -->
+                                    <div class="relative group cursor-pointer" onclick="triggerFotoUpload()" title="Klik untuk unggah foto profil">
+                                        <div class="w-16 h-16 bg-white/10 rounded-full border-2 border-white/20 flex items-center justify-center text-white text-2xl font-bold overflow-hidden" id="avatar-placeholder">
+                                            -
+                                        </div>
+                                        <!-- Overlay Unggah Kamera -->
+                                        <div class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                            <i data-lucide="camera" class="w-5 h-5 text-white"></i>
+                                        </div>
+                                        <!-- Hidden Input File -->
+                                        <input type="file" id="foto-profil-input" class="hidden" accept="image/*" onchange="handleFotoUpload(event)">
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center gap-2">
+                                            <h2 class="text-xl font-bold" id="det-nama">-</h2>
+                                            <span class="text-xs px-2.5 py-0.5 rounded-full font-semibold" id="det-badge-status">Status</span>
+                                        </div>
+                                        <p class="text-indigo-200 text-sm mt-0.5 flex items-center gap-1">
+                                            <i data-lucide="credit-card" class="w-3.5 h-3.5"></i> NIP/NIPPPK: <span id="det-nip">-</span>
+                                        </p>
+                                        <p class="text-indigo-200 text-xs mt-1 flex items-center gap-1">
+                                            <i data-lucide="map-pin" class="w-3.5 h-3.5"></i> <span id="det-jabatan">-</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="bg-white/10 backdrop-blur-sm p-3.5 rounded-xl border border-white/10 text-right min-w-[150px]">
+                                    <div class="text-xs text-indigo-200 uppercase tracking-wider font-semibold">Kelengkapan Berkas</div>
+                                    <div class="text-2xl font-black mt-0.5 text-green-300" id="det-kelengkapan-persen">0%</div>
+                                    <div class="text-[10px] text-indigo-100" id="det-kelengkapan-rasio">0 dari 33 diunggah</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB CATEGORY SELECTOR -->
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-2 flex gap-2">
+                            <button id="tab-pribadi-btn" onclick="switchCategoryTab('pribadi')" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                                Data Pribadi (16 Berkas)
+                                <span id="count-badge-pribadi" class="bg-indigo-800 text-white text-[10px] font-mono px-2 py-0.5 rounded-full">0</span>
+                            </button>
+                            <button id="tab-kepegawaian-btn" onclick="switchCategoryTab('kepegawaian')" class="flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100">
+                                <i data-lucide="briefcase" class="w-4 h-4"></i>
+                                Data Kepegawaian (17 Berkas)
+                                <span id="count-badge-kepegawaian" class="bg-slate-200 text-slate-700 text-[10px] font-mono px-2 py-0.5 rounded-full">0</span>
+                            </button>
+                        </div>
+
+                        <!-- 33 MENU UPLOAD DOKUMEN -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                            <div class="border-b border-slate-100 pb-4 mb-6">
+                                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2" id="workspace-title-category">
+                                    <i data-lucide="files" class="text-indigo-600 w-5 h-5"></i>
+                                    Unggah & Kelola Dokumen Wajib
+                                </h3>
+                                <p class="text-xs text-slate-500 mt-1" id="workspace-desc-category">Silakan kelola dokumen yang sesuai dengan kategori tab yang sedang aktif.</p>
+                            </div>
+
+                            <!-- Grid Dokumen (Rendered dynamically by JS) -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="dokumen-grid">
+                                <!-- JS akan merender berkas pribadi / kepegawaian ke sini -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-900 text-slate-400 text-xs py-6 mt-12 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>&copy; 2026 E-Kepegawaian Dinas. All Rights Reserved. Dashboard Arsip & Dokumen Digital.</p>
+                <div class="flex gap-4">
+                    <a href="#" class="hover:text-white transition">Panduan Pengguna</a>
+                    <a href="#" class="hover:text-white transition">Kebijakan Privasi</a>
+                    <a href="#" class="hover:text-white transition">Bantuan Teknis</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL TAMBAH PEGAWAI -->
+    <div id="add-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full overflow-hidden transition-all transform scale-95 duration-200">
+            <div class="bg-indigo-900 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i data-lucide="user-plus" class="w-5 h-5"></i>
+                    Tambah Pegawai Baru
+                </h3>
+                <button onclick="closeAddModal()" class="text-indigo-200 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="add-pegawai-form" onsubmit="handleTambahPegawai(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap</label>
+                    <input type="text" id="add-nama" required placeholder="Masukkan nama beserta gelar" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">NIP / NIPPPK</label>
+                    <input type="text" id="add-nip" required placeholder="NIP 18 Digit atau Kode PPPK" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Status Kepegawaian</label>
+                        <select id="add-status" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="PNS">PNS</option>
+                            <option value="PPPK">PPPK</option>
+                            <option value="CPNS">CPNS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Golongan/Ruang</label>
+                        <input type="text" id="add-golongan" placeholder="Contoh: III/a, IX" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Jabatan Sekarang</label>
+                    <input type="text" id="add-jabatan" required placeholder="Contoh: Analis SDM Aparatur" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                
+                <div class="pt-2 flex justify-end gap-3 border-t border-slate-100">
+                    <button type="button" onclick="closeAddModal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2 px-4 rounded-xl transition">Batal</button>
+                    <button type="submit" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Simpan Pegawai</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL LINK GOOGLE DRIVE -->
+    <div id="drive-link-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full overflow-hidden transition-all transform scale-95 duration-200">
+            <div class="bg-indigo-900 text-white p-5 flex items-center justify-between">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i data-lucide="link" class="w-5 h-5"></i>
+                    Tautkan Berkas Google Drive
+                </h3>
+                <button onclick="closeDriveModal()" class="text-indigo-200 hover:text-white transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-500 leading-relaxed">Pastikan Anda telah menyetel visibilitas link Google Drive berkas ini menjadi <strong>"Siapa saja yang memiliki link"</strong> agar dapat diakses oleh admin lain.</p>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Tampilan File</label>
+                    <input type="text" id="drive-display-name" placeholder="Contoh: SK_CPNS_Supriyadi.pdf" class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tautan / URL Berbagi Google Drive</label>
+                    <input type="url" id="drive-url-input" placeholder="https://drive.google.com/file/d/..." class="w-full text-sm border border-slate-200 rounded-xl p-2.5 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="pt-2 flex justify-end gap-3 border-t border-slate-100">
+                    <button onclick="closeDriveModal()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium py-2 px-4 rounded-xl transition">Batal</button>
+                    <button onclick="submitDriveLink()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-xl transition">Simpan Tautan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOTIFICATION SYSTEM -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <!-- FIREBASE & CORE LOGIC SCRIPTS -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global state
+        let dbRef = null;
+        let currentUser = null;
+        let currentDriveDocKey = null;
+        let currentDriveDocName = null;
+        let activeTabCategory = 'pribadi'; // 'pribadi' atau 'kepegawaian'
+
+        // Penyimpanan lokal persisten untuk file Base64 murni agar tidak hilang saat berpindah halaman/perangkat
+        let localFileStorage = {};
+
+        // 33 Jenis Dokumen yang Diminta (Terbagi ke dalam 2 Kategori)
+        const DAFTAR_DOKUMEN = [
+            // Kategori Data Pribadi (16 Dokumen)
+            { id: 1, nama: "KTP", key: "ktp", category: "pribadi" },
+            { id: 2, nama: "Akta Lahir", key: "akta_lahir", category: "pribadi" },
+            { id: 3, nama: "NPWP", key: "npwp", category: "pribadi" },
+            { id: 4, nama: "BPJS", key: "bpjs", category: "pribadi" },
+            { id: 5, nama: "Ijazah SD", key: "ijazah_sd", category: "pribadi" },
+            { id: 6, nama: "Ijazah SMP", key: "ijazah_smp", category: "pribadi" },
+            { id: 7, nama: "Ijazah SMA", key: "ijazah_sma", category: "pribadi" },
+            { id: 8, nama: "Ijazah S1", key: "ijazah_s1", category: "pribadi" },
+            { id: 9, nama: "Ijazah Profesi (Jika ada)", key: "ijazah_profesi", category: "pribadi" },
+            { id: 10, nama: "Akta Nikah (Jika ada)", key: "akta_nikah", category: "pribadi" },
+            { id: 11, nama: "Kartu Keluarga", key: "kartu_keluarga", category: "pribadi" },
+            { id: 12, nama: "KTP Pasangan (Jika ada)", key: "ktp_pasangan", category: "pribadi" },
+            { id: 13, nama: "Akta Lahir Pasangan (Jika ada)", key: "akta_lahir_pasangan", category: "pribadi" },
+            { id: 14, nama: "Akta Lahir Anak (Jika ada)", key: "akta_lahir_anak", category: "pribadi" },
+            { id: 15, nama: "KTP/Surat Kematian Orang Tua (Bapak/Ibu) (Jika ada)", key: "ktp_kematian_ortu", category: "pribadi" },
+            { id: 16, nama: "KTP/Surat Kematian Mertua (Jika ada)", key: "ktp_kematian_mertua", category: "pribadi" },
+
+            // Kategori Data Kepegawaian (17 Dokumen setelah split SK Kepangkatan berdasarkan tahapan/golongan)
+            { id: 17, nama: "SK CPNS / PPPK", key: "sk_cpns", category: "kepegawaian" },
+            { id: 18, nama: "SK PNS / PPPK", key: "sk_pns", category: "kepegawaian" },
+            { id: 19, nama: "SK Kepangkatan - Juru (Golongan I)", key: "sk_pangkat_gol1", category: "kepegawaian" },
+            { id: 20, nama: "SK Kepangkatan - Pengatur (Golongan II)", key: "sk_pangkat_gol2", category: "kepegawaian" },
+            { id: 21, nama: "SK Kepangkatan - Penata (Golongan III)", key: "sk_pangkat_gol3", category: "kepegawaian" },
+            { id: 22, nama: "SK Kepangkatan - Pembina (Golongan IV)", key: "sk_pangkat_gol4", category: "kepegawaian" },
+            { id: 23, nama: "SK Jabatan", key: "sk_jabatan", category: "kepegawaian" },
+            { id: 24, nama: "SK Berkala", key: "sk_berkala", category: "kepegawaian" },
+            { id: 25, nama: "SPK / Surat Perjanjian", key: "spk", category: "kepegawaian" },
+            { id: 26, nama: "Berita Acara Pelantikan", key: "ba_pelantikan", category: "kepegawaian" },
+            { id: 27, nama: "SPMT", key: "spmt", category: "kepegawaian" },
+            { id: 28, nama: "SKP (Awal & Terakhir)", key: "skp", category: "kepegawaian" },
+            { id: 29, nama: "PAK (Awal s.d. Terakhir)", key: "pak", category: "kepegawaian" },
+            { id: 30, nama: "Nota Tugas Mutasi (Jika ada)", key: "nota_mutasi", category: "kepegawaian" },
+            { id: 31, nama: "KP4 / SKUM (Tunjangan Keluarga)", key: "kp4", category: "kepegawaian" },
+            { id: 32, nama: "Sertifikat Diklat-diklat", key: "diklat", category: "kepegawaian" },
+            { id: 33, nama: "DRH (Daftar Riwayat Hidup)", key: "drh", category: "kepegawaian" }
+        ];
+
+        // Default Data Pegawai (Mock Initial State)
+        let dataPegawai = [
+            {
+                id: "peg-1",
+                nama: "Supriyadi, S.Kom., M.Si.",
+                nip: "198804122019031005",
+                status: "PNS",
+                golongan: "III/b",
+                jabatan: "Pranata Komputer Ahli Muda",
+                fotoProfil: "",
+                dokumen: {
+                    "ktp": { namaFile: "KTP_Supriyadi.pdf", tanggal: "10-01-2019", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "kartu_keluarga": { namaFile: "KK_Supriyadi_2024.pdf", tanggal: "12-05-2024", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "ijazah_s1": { namaFile: "Ijazah_S1_Supriyadi.pdf", tanggal: "15-08-2011", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_cpns": { namaFile: "SK_CPNS_Supriyadi.pdf", tanggal: "12-03-2019", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_pns": { namaFile: "SK_PNS_Supriyadi_Final.pdf", tanggal: "01-04-2020", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_pangkat_gol3": { namaFile: "SK_Kenaikan_Pangkat_IIIb.pdf", tanggal: "01-10-2023", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_jabatan": { namaFile: "SK_Prakom_Muda.pdf", tanggal: "15-01-2023", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "drh": { namaFile: "DRH_Supriyadi_2025.pdf", tanggal: "10-10-2025", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true }
+                }
+            },
+            {
+                id: "peg-2",
+                nama: "Rina Astuti, S.Pd.",
+                nip: "199411052021212014",
+                status: "PPPK",
+                golongan: "IX",
+                jabatan: "Ahli Pertama - Guru Kelas",
+                fotoProfil: "",
+                dokumen: {
+                    "ktp": { namaFile: "KTP_Rina_Astuti.pdf", tanggal: "15-02-2021", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "ijazah_s1": { namaFile: "Ijazah_S1_Rina.pdf", tanggal: "22-07-2016", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_cpns": { namaFile: "SK_PPPK_Rina_2021.pdf", tanggal: "01-06-2021", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "spk": { namaFile: "Perjanjian_Kerja_Rina_2026.pdf", tanggal: "10-01-2026", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "spmt": { namaFile: "SPMT_Mulai_Tugas_Rina.pdf", tanggal: "02-06-2021", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true }
+                }
+            },
+            {
+                id: "peg-3",
+                nama: "Achmad Fauzi, A.Md.",
+                nip: "200008152024031002",
+                status: "CPNS",
+                golongan: "II/c",
+                jabatan: "Pengelola Informasi Kepegawaian",
+                fotoProfil: "",
+                dokumen: {
+                    "ktp": { namaFile: "KTP_Achmad_Fauzi.pdf", tanggal: "04-03-2024", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true },
+                    "sk_cpns": { namaFile: "SK_CPNS_Fauzi_2024.pdf", tanggal: "15-03-2024", ukuran: "Tautan G-Drive", driveLink: "https://drive.google.com", isDrive: true }
+                }
+            }
+        ];
+
+        let selectedPegawaiId = null;
+
+        // Firebase Initializations
+        const initFirebase = async () => {
+            // Ambil data cadangan lokal terlebih dahulu untuk menghindari halaman kosong jika internet lambat
+            const localCachedData = localStorage.getItem('e_kepegawaian_local_db_cache');
+            if (localCachedData) {
+                try {
+                    dataPegawai = JSON.parse(localCachedData);
+                    renderDaftarPegawai();
+                    updateDashboardStats();
+                } catch (e) {
+                    console.error("Gagal membaca cache database lokal", e);
+                }
+            }
+
+            try {
+                if (typeof __firebase_config !== 'undefined') {
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    const auth = getAuth(app);
+                    const db = getFirestore(app);
+                    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+                    // Authenticate
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            currentUser = user;
+                            dbRef = doc(db, 'artifacts', appId, 'public', 'data', 'kepegawaian_db', 'main_state');
+                            
+                            const docSnap = await getDoc(dbRef);
+                            if (docSnap.exists() && docSnap.data().dataPegawai) {
+                                dataPegawai = docSnap.data().dataPegawai;
+                                localStorage.setItem('e_kepegawaian_local_db_cache', JSON.stringify(dataPegawai));
+                            } else {
+                                await setDoc(dbRef, { dataPegawai });
+                            }
+
+                            onSnapshot(dbRef, (docSnapshot) => {
+                                if (docSnapshot.exists() && docSnapshot.data().dataPegawai) {
+                                    dataPegawai = docSnapshot.data().dataPegawai;
+                                    localStorage.setItem('e_kepegawaian_local_db_cache', JSON.stringify(dataPegawai));
+                                    renderDaftarPegawai();
+                                    updateDashboardStats();
+                                    if (selectedPegawaiId) {
+                                        selectPegawai(selectedPegawaiId);
+                                    }
+                                }
+                            }, (err) => {
+                                console.error("Firebase listen error: ", err);
+                            });
+
+                            document.getElementById('db-sync-status').classList.remove('hidden');
+                        }
+                    });
+                }
+            } catch (error) {
+                console.warn("Firebase config not available atau gagal dimuat. Berjalan dalam mode Local Storage.", error);
+            }
+        };
+
+        // Save State helper (Sinkronisasi ke Cloud & Penyimpanan Lokal Lintas Sesi)
+        const saveState = async () => {
+            // Selalu simpan di LocalStorage sebagai cadangan utama di perangkat tersebut
+            localStorage.setItem('e_kepegawaian_local_db_cache', JSON.stringify(dataPegawai));
+
+            if (dbRef && currentUser) {
+                try {
+                    // Bersihkan file biner lokal yang terlalu besar sebelum disinkronkan ke cloud
+                    const cleanDataPegawai = JSON.parse(JSON.stringify(dataPegawai));
+                    cleanDataPegawai.forEach(peg => {
+                        Object.keys(peg.dokumen || {}).forEach(key => {
+                            if (peg.dokumen[key].fileDataUrl) {
+                                delete peg.dokumen[key].fileDataUrl;
+                            }
+                        });
+                    });
+
+                    await setDoc(dbRef, { dataPegawai: cleanDataPegawai });
+                } catch (e) {
+                    console.error("Gagal menyelaraskan ke Cloud Database", e);
+                }
+            } else {
+                renderDaftarPegawai();
+                updateDashboardStats();
+                if (selectedPegawaiId) {
+                    selectPegawai(selectedPegawaiId);
+                }
+            }
+        };
+
+        // TOAST NOTIFIKASI
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            
+            const bgColor = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-indigo-600';
+            const iconName = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
+
+            toast.className = `${bgColor} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm min-w-[280px] transition-all transform translate-y-5 opacity-0 duration-300`;
+            toast.innerHTML = `
+                <i data-lucide="${iconName}" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="flex-1">${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-5', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // RENDER DAFTAR PEGAWAI DI PANEL KIRI
+        function renderDaftarPegawai(filterQuery = "", filterStatus = "ALL") {
+            const listContainer = document.getElementById('pegawai-list');
+            if (!listContainer) return;
+            listContainer.innerHTML = '';
+
+            const filtered = dataPegawai.filter(peg => {
+                const matchQuery = peg.nama.toLowerCase().includes(filterQuery.toLowerCase()) || 
+                                   peg.nip.includes(filterQuery);
+                const matchStatus = filterStatus === 'ALL' || peg.status === filterStatus;
+                return matchQuery && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-8 text-slate-400 text-xs">
+                        Tidak ada pegawai yang ditemukan.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(peg => {
+                const totalDocs = DAFTAR_DOKUMEN.length;
+                const uploadedDocs = Object.keys(peg.dokumen || {}).length;
+                const percent = Math.round((uploadedDocs / totalDocs) * 100);
+
+                const isActive = peg.id === selectedPegawaiId;
+                const activeClasses = isActive 
+                    ? 'border-indigo-500 bg-indigo-50/70 ring-1 ring-indigo-100' 
+                    : 'border-slate-100 bg-white hover:bg-slate-50/80';
+
+                let statusBadge = '';
+                if (peg.status === 'PNS') statusBadge = 'bg-emerald-100 text-emerald-800';
+                else if (peg.status === 'PPPK') statusBadge = 'bg-amber-100 text-amber-800';
+                else statusBadge = 'bg-indigo-100 text-indigo-800';
+
+                // Gunakan foto profil mini jika ada
+                const inisial = peg.nama.split(',')[0].trim().substring(0,2).toUpperCase();
+                const avatarHtml = peg.fotoProfil 
+                    ? `<img src="${peg.fotoProfil}" class="w-10 h-10 rounded-full object-cover border border-slate-200">`
+                    : `<div class="w-10 h-10 bg-indigo-100 text-indigo-800 font-bold rounded-full flex items-center justify-center text-xs border border-indigo-200">${inisial}</div>`;
+
+                const div = document.createElement('div');
+                div.className = `p-4 rounded-xl border-2 cursor-pointer transition-all ${activeClasses}`;
+                div.onclick = () => selectPegawai(peg.id);
+                div.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-1">${avatarHtml}</div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <span class="text-[10px] px-2 py-0.5 font-semibold rounded-full ${statusBadge}">${peg.status}</span>
+                                <span class="text-[10px] text-slate-400 font-mono font-medium">${peg.golongan || '-'}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 text-sm mt-1 truncate" title="${peg.nama}">${peg.nama}</h4>
+                            <p class="text-[11px] text-slate-500 mt-0.5 font-mono">NIP: ${peg.nip}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <div class="flex items-center justify-between text-[10px] mb-1">
+                            <span class="text-slate-500">Kesiapan Berkas</span>
+                            <span class="font-semibold text-slate-700">${uploadedDocs}/${totalDocs} (${percent}%)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-indigo-600 h-full transition-all duration-300" style="width: ${percent}%"></div>
+                        </div>
+                    </div>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // FILTER EVENT HANDLER
+        function filterPegawai() {
+            const query = document.getElementById('search-input').value;
+            const status = document.getElementById('filter-status').value;
+            renderDaftarPegawai(query, status);
+        }
+
+        // AKSI SAAT SEORANG PEGAWAI DIKLIK
+        function selectPegawai(id) {
+            selectedPegawaiId = id;
+            
+            const peg = dataPegawai.find(p => p.id === id);
+            if (!peg) return;
+
+            document.getElementById('no-selection-state').classList.add('hidden');
+            document.getElementById('workspace-state').classList.remove('hidden');
+
+            document.getElementById('det-nama').innerText = peg.nama;
+            document.getElementById('det-nip').innerText = peg.nip;
+            document.getElementById('det-jabatan').innerText = `${peg.jabatan} - Gol/Ruang: ${peg.golongan || '-'}`;
+            
+            // Set foto profil utama jika ada, jika tidak gunakan inisial
+            const avatarPlaceholder = document.getElementById('avatar-placeholder');
+            if (peg.fotoProfil) {
+                avatarPlaceholder.innerHTML = `<img src="${peg.fotoProfil}" class="w-full h-full object-cover" alt="Foto ${peg.nama}">`;
+            } else {
+                const inisial = peg.nama.split(',')[0].trim().substring(0,2).toUpperCase();
+                avatarPlaceholder.innerHTML = `<span class="text-white text-2xl font-bold">${inisial}</span>`;
+            }
+
+            const statusBadge = document.getElementById('det-badge-status');
+            statusBadge.innerText = peg.status;
+            statusBadge.className = 'text-xs px-2.5 py-0.5 rounded-full font-semibold ';
+            if (peg.status === 'PNS') statusBadge.className += 'bg-emerald-100 text-emerald-800';
+            else if (peg.status === 'PPPK') statusBadge.className += 'bg-amber-100 text-amber-800';
+            else statusBadge.className += 'bg-indigo-100 text-indigo-800';
+
+            // Hitung Badge Jumlah Upload per Kategori
+            updateCategoryBadges(peg);
+
+            // Render berkas kategori yang aktif
+            renderDokumenGrid(peg);
+        }
+
+        // TRIGGER DIALOG PILIH FOTO PROFIL
+        function triggerFotoUpload() {
+            const input = document.getElementById('foto-profil-input');
+            if (input) input.click();
+        }
+
+        // HANDLER UNGGAH FOTO PROFIL (CONVERT KE BASE64)
+        function handleFotoUpload(event) {
+            const fileInput = event.target;
+            if (fileInput.files.length === 0) return;
+
+            const file = fileInput.files[0];
+            
+            if (!file.type.startsWith('image/')) {
+                showToast("Format file harus berupa Gambar (JPEG/PNG).", "error");
+                return;
+            }
+
+            if (file.size > 2 * 1024 * 1024) { 
+                showToast("Ukuran foto profil maksimal adalah 2MB.", "error");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+                if (peg) {
+                    peg.fotoProfil = e.target.result;
+                    
+                    saveState();
+                    selectPegawai(selectedPegawaiId); 
+                    renderDaftarPegawai(); 
+                    showToast("Foto profil berhasil diperbarui.");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // UPDATE BADGE PADA TAB KATEGORI
+        function updateCategoryBadges(peg) {
+            const listPribadi = DAFTAR_DOKUMEN.filter(d => d.category === 'pribadi');
+            const listKepegawaian = DAFTAR_DOKUMEN.filter(d => d.category === 'kepegawaian');
+
+            let uploadPribadi = 0;
+            let uploadKepegawaian = 0;
+
+            Object.keys(peg.dokumen || {}).forEach(key => {
+                const docMeta = DAFTAR_DOKUMEN.find(d => d.key === key);
+                if (docMeta) {
+                    if (docMeta.category === 'pribadi') uploadPribadi++;
+                    if (docMeta.category === 'kepegawaian') uploadKepegawaian++;
+                }
+            });
+
+            document.getElementById('count-badge-pribadi').innerText = `${uploadPribadi}/${listPribadi.length}`;
+            document.getElementById('count-badge-kepegawaian').innerText = `${uploadKepegawaian}/${listKepegawaian.length}`;
+        }
+
+        // PERALIHAN ANTARA TAB DATA PRIBADI DAN KEPEGAWAIAN
+        function switchCategoryTab(category) {
+            activeTabCategory = category;
+
+            const pribadiBtn = document.getElementById('tab-pribadi-btn');
+            const kepegawaianBtn = document.getElementById('tab-kepegawaian-btn');
+
+            const titleEl = document.getElementById('workspace-title-category');
+            const descEl = document.getElementById('workspace-desc-category');
+
+            if (category === 'pribadi') {
+                pribadiBtn.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm";
+                kepegawaianBtn.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100";
+                
+                titleEl.innerHTML = `<i data-lucide="user" class="text-indigo-600 w-5 h-5"></i> Unggah & Kelola Dokumen Pribadi (16 Berkas Wajib)`;
+                descEl.innerText = "Kelola data identitas diri, KTP, NPWP, BPJS, Ijazah (SD s.d S1 & Profesi), dan dokumen keluarga pegawai.";
+            } else {
+                kepegawaianBtn.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-sm";
+                pribadiBtn.className = "flex-1 py-3 px-4 rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center gap-2 bg-slate-50 text-slate-600 hover:bg-slate-100";
+                
+                titleEl.innerHTML = `<i data-lucide="briefcase" class="text-indigo-600 w-5 h-5"></i> Unggah & Kelola Dokumen Kepegawaian (17 Berkas Wajib)`;
+                descEl.innerText = "Kelola riwayat Kepangkatan, SK, SPMT, Surat Perjanjian, PAK, SKP, dan riwayat kedinasan pegawai.";
+            }
+
+            const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+            if (peg) {
+                renderDokumenGrid(peg);
+            }
+        }
+
+        // RENDER SLOT DOKUMEN SESUAI TAB YANG AKTIF
+        function renderDokumenGrid(peg) {
+            const grid = document.getElementById('dokumen-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+
+            const activeDocs = DAFTAR_DOKUMEN.filter(d => d.category === activeTabCategory);
+
+            activeDocs.forEach((docItem, idx) => {
+                const fileObj = peg.dokumen[docItem.key];
+                const isUploaded = !!fileObj;
+                const isDrive = fileObj && fileObj.isDrive;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border transition-all ${isUploaded ? (isDrive ? 'border-indigo-200 bg-indigo-50/10' : 'border-emerald-200 bg-emerald-50/10') : 'border-slate-200 bg-white'}`;
+                
+                let innerHtml = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-1.5">
+                                <span class="flex-shrink-0 w-5 h-5 bg-slate-100 rounded-full text-slate-600 flex items-center justify-center text-[10px] font-bold">${idx + 1}</span>
+                                <h4 class="font-semibold text-slate-700 text-xs truncate" title="${docItem.nama}">${docItem.nama}</h4>
+                            </div>
+                `;
+
+                if (isUploaded) {
+                    const iconColor = isDrive ? 'text-indigo-600' : 'text-emerald-600';
+                    const docIcon = isDrive ? 'link' : 'file-text';
+                    const detailSize = isDrive ? 'Tautan G-Drive' : fileObj.ukuran;
+
+                    innerHtml += `
+                        <div class="mt-2.5 bg-white border border-emerald-100 p-2 rounded-lg flex items-center justify-between gap-2 shadow-sm">
+                            <div class="flex items-center gap-2 min-w-0">
+                                <i data-lucide="${docIcon}" class="w-8 h-8 ${iconColor} flex-shrink-0"></i>
+                                <div class="truncate">
+                                    <p class="text-xs font-semibold text-slate-700 truncate">${fileObj.namaFile}</p>
+                                    <p class="text-[9px] text-slate-400 font-mono">${fileObj.tanggal} &bull; ${detailSize}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <button onclick="simulasikanUnduh('${docItem.key}')" class="p-1.5 hover:bg-slate-50 text-indigo-600 hover:text-indigo-800 rounded-lg transition" title="Buka / Unduh Berkas">
+                                    <i data-lucide="${isDrive ? 'external-link' : 'download'}" class="w-4 h-4"></i>
+                                </button>
+                                <button onclick="hapusFile('${docItem.key}')" class="p-1.5 hover:bg-red-50 text-red-500 hover:text-red-700 rounded-lg transition" title="Hapus Berkas">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    innerHtml += `
+                        <div class="mt-3 flex flex-col sm:flex-row gap-2">
+                            <!-- Tombol Unggah File Lokal -->
+                            <label class="flex-1 cursor-pointer bg-slate-50 hover:bg-slate-100 border border-dashed border-slate-300 hover:border-emerald-400 py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="upload-cloud" class="w-4 h-4 text-slate-400"></i>
+                                <span class="text-[11px] font-semibold text-slate-600">Unggah File</span>
+                                <input type="file" class="hidden" onchange="handleSimulasiUpload(event, '${docItem.key}', '${docItem.nama}')">
+                            </label>
+                            
+                            <!-- Tombol Tautkan Google Drive (Solusi Hemat Penyimpanan) -->
+                            <button onclick="openDriveModal('${docItem.key}', '${docItem.nama}')" class="flex-1 cursor-pointer bg-slate-50 hover:bg-indigo-50 border border-dashed border-slate-300 hover:border-indigo-400 py-2 px-3 rounded-lg text-center transition flex items-center justify-center gap-1.5">
+                                <i data-lucide="link" class="w-4 h-4 text-indigo-400"></i>
+                                <span class="text-[11px] font-semibold text-indigo-700">Tautkan G-Drive</span>
+                            </button>
+                        </div>
+                    `;
+                }
+
+                innerHtml += `
+                        </div>
+                        <span class="flex-shrink-0 text-[10px] font-semibold px-2 py-0.5 rounded-full ${isUploaded ? (isDrive ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800') : 'bg-slate-100 text-slate-500'}">
+                            ${isUploaded ? (isDrive ? 'Link Drive' : 'Berkas Lokal') : 'Belum Ada'}
+                        </span>
+                    </div>
+                `;
+
+                card.innerHTML = innerHtml;
+                grid.appendChild(card);
+            });
+
+            // Update stats & counters kelengkapan global (Total 33 Berkas)
+            const totalDocs = DAFTAR_DOKUMEN.length;
+            const uploadedDocs = Object.keys(peg.dokumen || {}).length;
+            const percent = Math.round((uploadedDocs / totalDocs) * 100);
+
+            document.getElementById('det-kelengkapan-persen').innerText = `${percent}%`;
+            document.getElementById('det-kelengkapan-rasio').innerText = `${uploadedDocs} dari ${totalDocs} diunggah`;
+
+            updateCategoryBadges(peg);
+            updateDashboardStats();
+            lucide.createIcons();
+        }
+
+        // PROSES UPLOAD FILE LOKAL
+        function handleSimulasiUpload(event, docKey, docNama) {
+            const fileInput = event.target;
+            if (fileInput.files.length === 0) return;
+
+            const file = fileInput.files[0];
+            const originalName = file.name;
+            const fileSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+            
+            const hariIni = new Date();
+            const formatTgl = String(hariIni.getDate()).padStart(2, '0') + '-' + 
+                              String(hariIni.getMonth() + 1).padStart(2, '0') + '-' + 
+                              hariIni.getFullYear();
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+                if (peg) {
+                    const uniqueStorageKey = `${selectedPegawaiId}_${docKey}`;
+                    localFileStorage[uniqueStorageKey] = e.target.result;
+                    sessionStorage.setItem(uniqueStorageKey, e.target.result);
+
+                    peg.dokumen[docKey] = {
+                        namaFile: originalName,
+                        tanggal: formatTgl,
+                        ukuran: fileSize,
+                        isDrive: false
+                    };
+
+                    saveState();
+                    showToast(`Berkas "${docNama}" berhasil diunggah secara lokal.`);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // MODAL GOOGLE DRIVE LINK HANDLERS
+        function openDriveModal(docKey, docNama) {
+            currentDriveDocKey = docKey;
+            currentDriveDocName = docNama;
+            document.getElementById('drive-display-name').value = `${docNama.replace(/\s+/g, '_')}.pdf`;
+            document.getElementById('drive-url-input').value = "";
+            document.getElementById('drive-link-modal').classList.remove('hidden');
+        }
+
+        function closeDriveModal() {
+            document.getElementById('drive-link-modal').classList.add('hidden');
+            currentDriveDocKey = null;
+            currentDriveDocName = null;
+        }
+
+        function submitDriveLink() {
+            const displayName = document.getElementById('drive-display-name').value.trim();
+            const urlInput = document.getElementById('drive-url-input').value.trim();
+
+            if (!displayName || !urlInput) {
+                showToast("Mohon isi nama file dan tautan Google Drive dengan benar.", "error");
+                return;
+            }
+
+            if (!urlInput.startsWith("http://") && !urlInput.startsWith("https://")) {
+                showToast("URL Google Drive tidak valid.", "error");
+                return;
+            }
+
+            const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+            if (peg && currentDriveDocKey) {
+                const hariIni = new Date();
+                const formatTgl = String(hariIni.getDate()).padStart(2, '0') + '-' + 
+                                  String(hariIni.getMonth() + 1).padStart(2, '0') + '-' + 
+                                  hariIni.getFullYear();
+
+                peg.dokumen[currentDriveDocKey] = {
+                    namaFile: displayName,
+                    tanggal: formatTgl,
+                    ukuran: "Tautan G-Drive",
+                    driveLink: urlInput,
+                    isDrive: true
+                };
+
+                saveState();
+                closeDriveModal();
+                showToast(`Tautan Google Drive untuk "${currentDriveDocName}" berhasil ditambahkan.`);
+            }
+        }
+
+        // UNDUH ATAU BUKA LINK GOOGLE DRIVE SECARA REAL TIME
+        function simulasikanUnduh(docKey) {
+            const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+            if (peg && peg.dokumen[docKey]) {
+                const doc = peg.dokumen[docKey];
+                
+                // Jika berkas adalah link Google Drive
+                if (doc.isDrive && doc.driveLink) {
+                    window.open(doc.driveLink, '_blank');
+                    showToast(`Membuka Tautan Google Drive: "${doc.namaFile}"`, 'info');
+                    return;
+                }
+
+                // Jika berkas adalah biner lokal
+                const uniqueStorageKey = `${selectedPegawaiId}_${docKey}`;
+                const fileData = localFileStorage[uniqueStorageKey] || sessionStorage.getItem(uniqueStorageKey);
+
+                if (fileData) {
+                    const link = document.createElement('a');
+                    link.href = fileData;
+                    link.download = doc.namaFile;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast(`Mengunduh berkas lokal "${doc.namaFile}"...`);
+                } else if (doc.isMock) {
+                    const dummyContent = `=== ARSIP DIGITAL PEGAWAI ===\n\nNama Pegawai: ${peg.nama}\nNIP: ${peg.nip}\nBerkas: ${doc.namaFile}\nTanggal Arsip: ${doc.tanggal}\nStatus Verifikasi: Valid (Simulated)`;
+                    const textEncoder = new TextEncoder();
+                    const dummyBytes = textEncoder.encode(dummyContent);
+                    const blob = new Blob([dummyBytes], { type: 'text/plain;charset=utf-8' });
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = doc.namaFile;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                    
+                    showToast(`Mengunduh Berkas Contoh: "${doc.namaFile}"`, 'info');
+                } else {
+                    showToast("Maaf, data file mentah untuk berkas lokal ini telah kedaluwarsa dari memori browser Anda. Silakan unggah ulang atau tautkan link Google Drive.", "error");
+                }
+            }
+        }
+
+        // HAPUS BERKAS
+        function hapusFile(docKey) {
+            const peg = dataPegawai.find(p => p.id === selectedPegawaiId);
+            if (peg && peg.dokumen[docKey]) {
+                const namaFile = peg.dokumen[docKey].namaFile;
+                
+                // Bersihkan penyimpanan biner lokal
+                const uniqueStorageKey = `${selectedPegawaiId}_${docKey}`;
+                delete localFileStorage[uniqueStorageKey];
+                sessionStorage.removeItem(uniqueStorageKey);
+
+                delete peg.dokumen[docKey];
+                
+                saveState();
+                showToast(`Berkas "${namaFile}" berhasil dihapus.`);
+            }
+        }
+
+        // UPDATE STATS DI ATAS DASHBOARD
+        function updateDashboardStats() {
+            const total = dataPegawai.length;
+            const pns = dataPegawai.filter(p => p.status === 'PNS' || p.status === 'CPNS').length;
+            const pppk = dataPegawai.filter(p => p.status === 'PPPK').length;
+
+            let totalFiles = 0;
+            dataPegawai.forEach(p => {
+                totalFiles += Object.keys(p.dokumen || {}).length;
+            });
+
+            const totalEl = document.getElementById('stat-total-pegawai');
+            const pnsEl = document.getElementById('stat-pns');
+            const pppkEl = document.getElementById('stat-pppk');
+            const filesEl = document.getElementById('stat-files');
+
+            if (totalEl) totalEl.innerText = total;
+            if (pnsEl) pnsEl.innerText = pns;
+            if (pppkEl) pppkEl.innerText = pppk;
+            if (filesEl) filesEl.innerText = totalFiles;
+        }
+
+        // EKSPOR DATABASE KE FILE JSON (Cadangkan ke Google Drive)
+        function eksporDatabaseJSON() {
+            const jsonString = JSON.stringify(dataPegawai, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = "database_kepegawaian.json";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast("Database berhasil diekspor! Silakan unggah berkas 'database_kepegawaian.json' ini ke Google Drive Anda.");
+        }
+
+        // IMPOR DATABASE DARI FILE JSON
+        function imporDatabaseJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    if (Array.isArray(importedData)) {
+                        dataPegawai = importedData;
+                        saveState();
+                        showToast("Database berhasil diimpor & dipulihkan dari cadangan!");
+                    } else {
+                        showToast("Format file database tidak valid.", "error");
+                    }
+                } catch (err) {
+                    showToast("Gagal membaca berkas JSON.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // MODAL TAMBAH PEGAWAI
+        function openAddModal() {
+            document.getElementById('add-modal').classList.remove('hidden');
+        }
+
+        function closeAddModal() {
+            document.getElementById('add-modal').classList.add('hidden');
+            document.getElementById('add-pegawai-form').reset();
+        }
+
+        function handleTambahPegawai(event) {
+            event.preventDefault();
+
+            const nama = document.getElementById('add-nama').value;
+            const nip = document.getElementById('add-nip').value;
+            const status = document.getElementById('add-status').value;
+            const golongan = document.getElementById('add-golongan').value;
+            const jabatan = document.getElementById('add-jabatan').value;
+
+            const newId = `peg-${Date.now()}`;
+            const newPegawai = {
+                id: newId,
+                nama: nama,
+                nip: nip,
+                status: status,
+                golongan: golongan || '-',
+                jabatan: jabatan,
+                fotoProfil: "", 
+                dokumen: {}
+            };
+
+            dataPegawai.unshift(newPegawai);
+            
+            saveState();
+            closeAddModal();
+            selectPegawai(newId);
+
+            showToast(`Pegawai "${nama}" berhasil didaftarkan.`);
+        }
+
+        // SISTEM AUTH / LOGIN KEAMANAN WEB
+        function handleLogin(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('login-username').value.trim();
+            const passwordInput = document.getElementById('login-password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Kredensial Validasi
+            if (usernameInput === "admin" && passwordInput === "admin123") {
+                if (rememberMe) {
+                    localStorage.setItem('e_kepegawaian_logged_in', 'true');
+                } else {
+                    sessionStorage.setItem('e_kepegawaian_logged_in', 'true');
+                }
+                
+                showToast("Selamat Datang! Login berhasil.", "success");
+                enterApp();
+            } else {
+                showToast("Username atau Password salah!", "error");
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('login-password');
+            const toggleIcon = document.getElementById('toggle-password-icon');
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                toggleIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passwordField.type = "password";
+                toggleIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+
+        function enterApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+            document.getElementById('app-container').classList.add('flex');
+            
+            renderDaftarPegawai();
+            updateDashboardStats();
+            lucide.createIcons();
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('e_kepegawaian_logged_in');
+            sessionStorage.removeItem('e_kepegawaian_logged_in');
+            
+            document.getElementById('login-form').reset();
+            
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('flex');
+            document.getElementById('login-screen').classList.remove('hidden');
+            
+            showToast("Anda telah keluar dari sistem secara aman.", "info");
+            lucide.createIcons();
+        }
+
+        function showForgotPasswordAlert() {
+            showToast("Hubungi administrator IT Dinas untuk menyetel ulang kata sandi Anda.", "info");
+        }
+
+        function checkLoginSession() {
+            const isRemembered = localStorage.getItem('e_kepegawaian_logged_in') === 'true';
+            const isSessionActive = sessionStorage.getItem('e_kepegawaian_logged_in') === 'true';
+
+            if (isRemembered || isSessionActive) {
+                enterApp();
+            }
+        }
+
+        // Daftarkan fungsi ke global agar bisa dipanggil lewat atribut HTML
+        window.filterPegawai = filterPegawai;
+        window.selectPegawai = selectPegawai;
+        window.handleSimulasiUpload = handleSimulasiUpload;
+        window.simulasikanUnduh = simulasikanUnduh;
+        window.hapusFile = hapusFile;
+        window.eksporDatabaseJSON = eksporDatabaseJSON;
+        window.imporDatabaseJSON = imporDatabaseJSON;
+        window.openAddModal = openAddModal;
+        window.closeAddModal = closeAddModal;
+        window.handleTambahPegawai = handleTambahPegawai;
+        window.handleLogin = handleLogin;
+        window.togglePasswordVisibility = togglePasswordVisibility;
+        window.handleLogout = handleLogout;
+        window.showForgotPasswordAlert = showForgotPasswordAlert;
+        window.openDriveModal = openDriveModal;
+        window.closeDriveModal = closeDriveModal;
+        window.submitDriveLink = submitDriveLink;
+        window.switchCategoryTab = switchCategoryTab;
+        window.triggerFotoUpload = triggerFotoUpload;
+        window.handleFotoUpload = handleFotoUpload;
+
+        // Run Init
+        window.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+            checkLoginSession();
+            updateDashboardStats();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
